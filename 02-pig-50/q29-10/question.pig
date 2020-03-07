@@ -1,42 +1,51 @@
--- 
--- Pregunta
--- ===========================================================================
--- 
--- Para responder la pregunta use el archivo `data.csv`.
--- 
--- Escriba el código en Pig para manipulación de fechas que genere la siguiente 
--- salida.
--- 
---    1971-07-08,jul,07,7
---    1974-05-23,may,05,5
---    1973-04-22,abr,04,4
---    1975-01-29,ene,01,1
---    1974-07-03,jul,07,7
---    1974-10-18,oct,10,10
---    1970-10-05,oct,10,10
---    1969-02-24,feb,02,2
---    1974-10-17,oct,10,10
---    1975-02-28,feb,02,2
---    1969-12-07,dic,12,12
---    1973-12-24,dic,12,12
---    1970-08-27,ago,08,8
---    1972-12-12,dic,12,12
---    1970-07-01,jul,07,7
---    1974-02-11,feb,02,2
---    1973-04-01,abr,04,4
---    1973-04-29,abr,04,4
--- 
--- Escriba el resultado a la carpeta `output` del directorio actual.
--- 
+--
 fs -rm -f -r output;
--- 
-u = LOAD 'data.csv' USING PigStorage(',') 
+--
+data = LOAD 'data.csv' USING PigStorage(',') 
     AS (id:int, 
         firstname:CHARARRAY, 
         surname:CHARARRAY, 
         birthday:CHARARRAY, 
         color:CHARARRAY, 
         quantity:INT);
---
--- >>> Escriba su respuesta a partir de este punto <<<
---
+-- Carga el archivo desde el disco duro
+--data = LOAD 'data.csv' USING PigStorage(',') AS (f1:CHARARRAY, f2:CHARARRAY, f3:CHARARRAY,f4:CHARARRAY, f5:CHARARRAY, f6:CHARARRAY);
+
+
+columns = FOREACH data GENERATE birthday,ToDate(birthday, 'yyyy-MM-dd') AS date:DateTime;
+columns2 = FOREACH columns GENERATE birthday,LOWER(ToString(date, 'MMM')),ToString(date, 'MM'),ToString(date, 'M');
+
+columns3 = FOREACH columns2 GENERATE $0,CASE $1
+                                WHEN 'jan' THEN 'ene'
+                                WHEN 'feb' THEN 'feb'
+                                WHEN 'mar' THEN 'mar'
+                                WHEN 'apr' THEN 'abr'
+                                WHEN 'may' THEN 'may'
+                                WHEN 'jun' THEN 'jun'
+                                WHEN 'jul' THEN 'jul'
+                                WHEN 'aug' THEN 'ago'
+                                WHEN 'sep' THEN 'sep'
+                                WHEN 'oct' THEN 'oct'
+                                WHEN 'nov' THEN 'nov'
+                                WHEN 'dec' THEN 'dic'
+                                END,$2,$3;
+
+
+--filtro = FILTER columns BY SUBSTRING($0,0,1)>='M';
+--filtro2 = FILTER filtro BY surname < 'L';
+
+--datos2 = FOREACH columns GENERATE $0,SUBSTRING($1,0,3);
+--datos3 = FOREACH datos2 GENERATE FLATTEN($0),$1;
+--grouped = GROUP datos3 BY ($0,$1);
+--conteo = FOREACH grouped GENERATE group, COUNT(datos3);
+
+--data2 = FOREACH columns GENERATE 
+
+
+--grouped = ORDER columns BY $1 DESC,$0;
+--s = LIMIT grouped 5;
+--DUMP columns3
+--DUMP filtro
+STORE columns3 INTO 'output' USING PigStorage(',');
+
+fs -get output/ .

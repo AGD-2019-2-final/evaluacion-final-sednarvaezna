@@ -2,12 +2,9 @@
 -- Pregunta
 -- ===========================================================================
 --
--- Escriba una consulta que compute la cantidad de registros por letra de la 
--- columna 2 y clave de la columna 3; esto es, por ejemplo, la cantidad de 
--- registros en tienen la letra `a` en la columna 2 y la clave `aaa` en la 
--- columna 3 es:
---
---     a    aaa    5
+-- Escriba una consulta que calcule la cantidad de registros por clave de la 
+-- columna 3. En otras palabras, cuántos registros hay que tengan la clave 
+-- `aaa`?
 --
 -- Escriba el resultado a la carpeta `output` de directorio de trabajo.
 --
@@ -27,4 +24,8 @@ LOAD DATA LOCAL INPATH 'data.tsv' INTO TABLE t0;
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
 
+INSERT OVERWRITE DIRECTORY '/tmp/output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT col3,col1,COUNT(1) FROM t0 LATERAL VIEW explode(c3) dummy1 as col1,col2 LATERAL VIEW explode(c2) explodeVal as col3 GROUP BY col3,col1;
 
+!hadoop fs -copyToLocal /tmp/output output

@@ -1,9 +1,10 @@
+
 -- 
 -- Pregunta
 -- ===========================================================================
 --
--- Escriba una consulta que retorne la columna `tbl0.c1` y el valor 
--- correspondiente de la columna `tbl1.c4` para la columna `tbl0.c2`.
+-- Escriba una consulta que retorne los valores únicos de la columna `t0.c5` 
+-- (ordenados). 
 --
 -- Escriba el resultado a la carpeta `output` de directorio de trabajo.
 --
@@ -13,7 +14,7 @@ CREATE TABLE tbl0 (
     c2 STRING,
     c3 INT,
     c4 DATE,
-    c5 ARRAY<CHAR(1)>, 
+    c5 STRING, 
     c6 MAP<STRING, INT>
 )
 ROW FORMAT DELIMITED 
@@ -39,3 +40,8 @@ LOAD DATA LOCAL INPATH 'tbl1.csv' INTO TABLE tbl1;
 --
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
+
+INSERT OVERWRITE DIRECTORY '/tmp/output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT t.c1,t.col1,t.col2 FROM(SELECT c1,col1,col2 FROM tbl1 LATERAL VIEW explode(c4) dummy1 as col1,col2)t,tbl0 WHERE t.c1=tbl0.c1 and t.col1=tbl0.c2;
+!hadoop fs -copyToLocal /tmp/output output

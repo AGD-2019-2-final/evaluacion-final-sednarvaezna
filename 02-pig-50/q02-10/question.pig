@@ -1,12 +1,15 @@
--- Pregunta
--- ===========================================================================
--- 
--- Ordene el archivo `data.tsv`  por letra y valor (3ra columna).
--- Escriba el resultado a la carpeta `output` del directorio actual.
--- 
+--
 fs -rm -f -r output;
--- 
---  >>> Escriba el codigo del mapper a partir de este punto <<<
--- 
+-- Carga el archivo desde el disco duro
+--
 
+data = LOAD 'data.tsv' AS (letter:CHARARRAY, date:CHARARRAY, value:INT);
+   
+grouped = ORDER data BY $0,$2;
+
+tabs = FOREACH grouped GENERATE CONCAT($0,'\t',$1,'\t',$2);
+
+STORE grouped INTO 'output';
+
+fs -get output/ .
 

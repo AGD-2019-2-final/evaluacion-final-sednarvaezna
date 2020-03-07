@@ -1,3 +1,4 @@
+
 -- 
 -- Pregunta
 -- ===========================================================================
@@ -40,3 +41,8 @@ LOAD DATA LOCAL INPATH 'tbl1.csv' INTO TABLE tbl1;
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
 
+INSERT OVERWRITE DIRECTORY '/tmp/output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT DISTINCT col FROM tbl0 LATERAL VIEW explode(c5) explodeVal AS col;
+
+!hadoop fs -copyToLocal /tmp/output output

@@ -1,35 +1,33 @@
--- 
--- Pregunta
--- ===========================================================================
--- 
--- Para responder la pregunta use el archivo `data.csv`.
--- 
--- Obtenga los apellidos que empiecen por las letras entre la 'd' y la 'k'. La 
--- salida esperada es la siguiente:
--- 
---   (Hamilton)
---   (Holcomb)
---   (Garrett)
---   (Fry)
---   (Kinney)
---   (Klein)
---   (Diaz)
---   (Guy)
---   (Estes)
---   (Jarvis)
---   (Knight)
--- 
--- Escriba el resultado a la carpeta `output` del directorio actual.
--- 
+--
 fs -rm -f -r output;
 --
-u = LOAD 'data.csv' USING PigStorage(',') 
+data = LOAD 'data.csv' USING PigStorage(',') 
     AS (id:int, 
         firstname:CHARARRAY, 
         surname:CHARARRAY, 
         birthday:CHARARRAY, 
         color:CHARARRAY, 
         quantity:INT);
---
--- >>> Escriba su respuesta a partir de este punto <<<
---
+-- Carga el archivo desde el disco duro
+--data = LOAD 'data.csv' USING PigStorage(',') AS (f1:CHARARRAY, f2:CHARARRAY, f3:CHARARRAY,f4:CHARARRAY, f5:CHARARRAY, f6:CHARARRAY);
+   
+columns = FOREACH data GENERATE surname;
+filtro = FILTER columns BY surname > 'D';
+filtro2 = FILTER filtro BY surname < 'L';
+
+
+--datos2 = FOREACH columns GENERATE $0,SUBSTRING($1,0,3);
+--datos3 = FOREACH datos2 GENERATE FLATTEN($0),$1;
+--grouped = GROUP datos3 BY ($0,$1);
+--conteo = FOREACH grouped GENERATE group, COUNT(datos3);
+
+--data2 = FOREACH columns GENERATE 
+
+
+--grouped = ORDER columns BY $1 DESC,$0;
+--s = LIMIT grouped 5;
+--DUMP columns
+--DUMP filtro2
+STORE filtro2 INTO 'output' USING PigStorage(',');
+
+fs -get output/ .

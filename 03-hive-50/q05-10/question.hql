@@ -1,9 +1,10 @@
+
 -- 
 -- Pregunta
 -- ===========================================================================
 --
--- Realice una consulta que compute la cantidad de veces que aparece cada valor 
--- de la columna `t0.c5`  por año.
+-- Escriba una consulta que retorne los valores únicos de la columna `t0.c5` 
+-- (ordenados). 
 --
 -- Escriba el resultado a la carpeta `output` de directorio de trabajo.
 --
@@ -40,3 +41,8 @@ LOAD DATA LOCAL INPATH 'tbl1.csv' INTO TABLE tbl1;
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
 
+INSERT OVERWRITE DIRECTORY '/tmp/output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT yea,col,COUNT(col) FROM (SELECT year(c4) AS yea,col FROM tbl0 LATERAL VIEW explode(c5) explodeVal AS col) t GROUP BY yea,col;
+
+!hadoop fs -copyToLocal /tmp/output output

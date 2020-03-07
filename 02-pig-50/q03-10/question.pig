@@ -1,10 +1,17 @@
--- Pregunta
--- ===========================================================================
--- 
--- Obtenga los cinco (5) valores más pequeños de la 3ra columna.
--- Escriba el resultado a la carpeta `output` del directorio actual.
--- 
+--
 fs -rm -f -r output;
+-- Carga el archivo desde el disco duro
 --
--- >>> Escriba su respuesta a partir de este punto <<<
---
+
+data = LOAD 'data.tsv' AS (letter:CHARARRAY, date:CHARARRAY, value:INT);
+   
+values = FOREACH data GENERATE $2;
+
+grouped = ORDER values BY $0;
+
+s = LIMIT grouped 5;
+
+STORE s INTO 'output';
+
+fs -get output/ .
+

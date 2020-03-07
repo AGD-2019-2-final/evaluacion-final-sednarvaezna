@@ -24,3 +24,7 @@ LOAD DATA LOCAL INPATH 'data.tsv' INTO TABLE t0;
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
 
+INSERT OVERWRITE DIRECTORY '/tmp/output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT col1,COUNT(col1) FROM t0 LATERAL VIEW explode(c3) explodeVal as col1,col2 GROUP BY col1;
+!hadoop fs -copyToLocal /tmp/output output
